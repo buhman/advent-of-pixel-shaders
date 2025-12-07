@@ -131,6 +131,7 @@ MAIN_OBJS = \
 	src/main.o \
 	src/glad.o \
 	src/opengl.o \
+	$(patsubst %.glsl,%.glsl.o,$(wildcard src/shader/*.glsl)) \
 	$(GLFW)
 
 main: $(MAIN_OBJS)

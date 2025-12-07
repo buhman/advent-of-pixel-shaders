@@ -8,7 +8,8 @@
 
 #include "opengl.h"
 
-typedef unsigned int uint;
+#include "shader/test.vs.glsl.h"
+#include "shader/test.fs.glsl.h"
 
 int vp_width = 800;
 int vp_height = 600;
@@ -18,6 +19,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
   vp_width = width;
   vp_height = height;
 }
+
+const float triangle_array[] = {
+  -1, -1,
+   1, -1,
+  -1,  1,
+   1,  1
+};
 
 int main()
 {
@@ -51,12 +59,12 @@ int main()
 
   const char * data = "arst";
 
-  make_texture(data,
-               GL_R8, // internalformat
-               2, // width
-               2, // height
-               GL_RED,
-               GL_UNSIGNED_BYTE);
+  uint texture_input = make_texture(data,
+                                    GL_R8, // internalformat
+                                    2, // width
+                                    2, // height
+                                    GL_RED,
+                                    GL_UNSIGNED_BYTE);
 
   uint texture_framebuffer = make_texture(NULL,
                                           GL_RGBA32F,
@@ -65,30 +73,63 @@ int main()
                                           GL_RGBA,
                                           GL_UNSIGNED_BYTE);
 
-  uint fp_framebuffer;
-  glGenFramebuffers(1, &fp_framebuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, fp_framebuffer);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_framebuffer, 0);
+  uint framebuffer = make_framebuffer(&texture_framebuffer, 1);
 
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  assert(status == GL_FRAMEBUFFER_COMPLETE);
+  //////////////////////////////////////////////////////////////////////
+  // shaders
+  //////////////////////////////////////////////////////////////////////
 
-  uint draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
-  glDrawBuffers(1, draw_buffers);
+  uint program_test = compile_shader(src_shader_test_vs_glsl_start,
+                                     src_shader_test_vs_glsl_size,
+                                     src_shader_test_fs_glsl_start,
+                                     src_shader_test_fs_glsl_size);
+
+  //////////////////////////////////////////////////////////////////////
+  // buffers
+  //////////////////////////////////////////////////////////////////////
+
+  uint vertex_buffer = make_buffer(GL_ARRAY_BUFFER,
+                                   triangle_array,
+                                   (sizeof (triangle_array)));
+
+  uint vertex_array;
+  glGenVertexArrays(1, &vertex_array);
+  glBindVertexArray(vertex_array);
+  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+  glVertexAttribPointer(0,
+                        2,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        (sizeof (float)) * 2,
+                        (void*)0
+                        );
+  glEnableVertexAttribArray(0);
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   while(!glfwWindowShouldClose(window)) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, fp_framebuffer);
+    /*
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    uint draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, draw_buffers);
     glViewport(0, 0, 2, 2);
+    */
+    glViewport(0, 0, vp_width, vp_height);
 
-    glClearColor(0.1, 0.2, 0.3, 0.4);
+    glClearColor(0.1, 0.2, 0.0, 0.4);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(program_test);
+    glBindVertexArray(vertex_array);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     //glFlush();
     //glFinish();
 
+    /*
     float out[4 * 2 * 2] = {0};
     glReadPixels(0, 0,
                  2, 2,
@@ -99,8 +140,10 @@ int main()
     for (int i = 0; i < 4 * 2 * 2; i++) {
       printf("%f\n", out[i]);
     }
+    */
+    //printf("swap\n");
 
-    break;
+    glfwSwapBuffers(window);
     glfwPollEvents();
   }
 

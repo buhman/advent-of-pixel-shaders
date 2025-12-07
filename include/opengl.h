@@ -4,21 +4,25 @@
 extern "C" {
 #endif
 
-unsigned int compile_shader(const void * vp,
-                            const int vp_length,
-                            const void * fp,
-                            const int fp_length);
+typedef unsigned int uint;
 
-int make_buffer(unsigned int target,
-                const void * data,
-                size_t size);
+uint compile_shader(const void * vp,
+                    const int vp_length,
+                    const void * fp,
+                    const int fp_length);
 
-int make_texture(const void * data,
-                 int internalformat,
-                 int width,
-                 int height,
-                 int format,
-                 int type);
+uint make_buffer(unsigned int target,
+                 const void * data,
+                 size_t size);
+
+uint make_texture(const void * data,
+                  int internalformat,
+                  int width,
+                  int height,
+                  int format,
+                  int type);
+
+uint make_framebuffer(uint * texture, int length);
 
 #ifdef __cplusplus
 }

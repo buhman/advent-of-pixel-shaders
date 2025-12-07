@@ -1,12 +1,14 @@
 #include <stddef.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "glad.h"
+#include "opengl.h"
 
-unsigned int compile_shader(const void * vp,
-                            const int vp_length,
-                            const void * fp,
-                            const int fp_length)
+uint compile_shader(const void * vp,
+                    const int vp_length,
+                    const void * fp,
+                    const int fp_length)
 {
   unsigned int vertex_shader;
   vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -59,23 +61,25 @@ unsigned int compile_shader(const void * vp,
   return shader_program;
 }
 
-int make_buffer(unsigned int target,
-                const void * data,
-                size_t size)
+uint make_buffer(unsigned int target,
+                 const void * data,
+                 size_t size)
 {
   unsigned int buffer;
   glGenBuffers(1, &buffer);
   glBindBuffer(target, buffer);
   glBufferData(target, size, data, GL_STATIC_DRAW);
+
+  glBindBuffer(target, 0);
   return buffer;
 }
 
-int make_texture(const void * data,
-                 int internalformat,
-                 int width,
-                 int height,
-                 int format,
-                 int type)
+uint make_texture(const void * data,
+                  int internalformat,
+                  int width,
+                  int height,
+                  int format,
+                  int type)
 {
   unsigned int texture;
   glGenTextures(1, &texture);
@@ -88,5 +92,23 @@ int make_texture(const void * data,
 
   glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, data);
 
+  glBindTexture(GL_TEXTURE_2D, 0);
   return texture;
+}
+
+uint make_framebuffer(uint * texture, int length)
+{
+  uint framebuffer;
+  glGenFramebuffers(1, &framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+  for (int i = 0; i < length; i++) {
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture[i], 0);
+  }
+
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  assert(status == GL_FRAMEBUFFER_COMPLETE);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  return framebuffer;
 }
