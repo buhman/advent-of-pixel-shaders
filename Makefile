@@ -71,6 +71,7 @@ as_obj_binary = $(subst -,_,$(subst .,_,$(subst /,_,$(subst .h,,$(call makefile_
 as_obj_binary_p = _binary_$(call as_obj_binary,$(1))
 
 define BUILD_BINARY_H
+	@mkdir -p $(dir $@)
 	@echo gen $(call makefile_relative,$@)
 	@echo '#pragma once' > $@
 	@echo '' >> $@
@@ -127,15 +128,29 @@ clean:
 %.o: %.c
 	$(CC) $(CSTD) $(ARCH) $(CFLAGS) $(CXXFLAGS) $(OPT) $(DEBUG) $(DEPFLAGS) -MF ${<}.d -c $< -o $@
 
+SHADERS = $(shell find src/ -type f -name '*.glsl')
+SHADER_OBJS = $(patsubst %,%.o,$(SHADERS))
+SHADER_HEADERS = $(subst src/,include/,$(patsubst %,%.h,$(SHADERS)))
+
+shaders: $(SHADER_HEADERS)
+
+INPUTS = $(shell find puzzle/ -type f -name input)
+INPUT_OBJS = $(patsubst %,%.o,$(INPUTS))
+
+SOLUTIONS = $(shell find src/solution/2025/ -type f -name '*.c')
+SOLUTION_OBJS = $(patsubst %.c,%.o,$(SOLUTIONS))
+
 MAIN_OBJS = \
 	src/main.o \
 	src/glad.o \
 	src/opengl.o \
-	$(patsubst %.glsl,%.glsl.o,$(wildcard src/shader/*.glsl)) \
-	$(patsubst %,%.o,$(shell find puzzle/ -type f -name input)) \
+	src/input.o \
+	$(SHADER_OBJS) \
+	$(INPUT_OBJS) \
+	$(SOLUTION_OBJS) \
 	$(GLFW)
 
-main: $(MAIN_OBJS)
+main: $(MAIN_OBJS) | shaders
 	$(CXX) $^ $(CXXFLAGS) $(ARCH) -o $@ $(LDFLAGS)
 
 #-include $(shell find -type f -name 'src/*.d')
@@ -143,7 +158,7 @@ main: $(MAIN_OBJS)
 .SUFFIXES:
 .INTERMEDIATE:
 .SECONDARY:
-.PHONY: all clean
+.PHONY: all clean shaders
 
 %: RCS/%,v
 %: RCS/%

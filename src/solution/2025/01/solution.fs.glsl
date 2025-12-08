@@ -2,17 +2,17 @@
 
 out vec4 fragment_color;
 
-uniform sampler2D tex_sampler;
-uniform vec4 tex_size; // w h halfpx_w halfpx_h
+uniform sampler2D input_sampler;
+uniform vec4 input_dim; // w h halfpx_w halfpx_h
 uniform float input_length;
 
 vec2 rectangular_position(float ix)
 {
-  float y = floor(ix * tex_size.z * 2.0);
-  float x = ix - tex_size.x * y;
+  float y = floor(ix * input_dim.z * 2.0);
+  float x = ix - input_dim.x * y;
 
-  return vec2((x * 2.0 + 1) * tex_size.z,
-              (y * 2.0 + 1) * tex_size.w);
+  return vec2((x * 2.0 + 1) * input_dim.z,
+              (y * 2.0 + 1) * input_dim.w);
 }
 
 const float ascii_zero = 48.0;
@@ -21,7 +21,7 @@ const float ascii_l = 76.0;
 
 float get_input(float ix)
 {
-  return texture(tex_sampler, rectangular_position(ix)).x * 255.0;
+  return texture(input_sampler, rectangular_position(ix)).x * 255.0;
 }
 
 vec2 parse_integer(float ix)
