@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
@@ -10,6 +12,11 @@
 
 #include "shader/test.vs.glsl.h"
 #include "shader/test.fs.glsl.h"
+
+#include "shader/day1.vs.glsl.h"
+#include "shader/day1.fs.glsl.h"
+
+#include "puzzle/2025/01/input.h"
 
 int vp_width = 800;
 int vp_height = 600;
@@ -26,6 +33,31 @@ const float triangle_array[] = {
   -1,  1,
    1,  1
 };
+
+static inline int next_power_of_two(double n)
+{
+  return pow(2, ceil(log2(n)));
+}
+
+uint rectangularize_input(const char * buf, int size, int * width_out)
+{
+  int width = next_power_of_two(sqrt(size));
+
+  void * tmp = malloc(width * width);
+  memcpy(tmp, buf, size);
+
+  uint texture = make_texture(buf,
+                              GL_R8, // internalformat
+                              width,
+                              width,
+                              GL_RED,
+                              GL_UNSIGNED_BYTE);
+  *width_out = width;
+
+  free(tmp);
+
+  return texture;
+}
 
 int main()
 {
@@ -60,20 +92,12 @@ int main()
   // textures
   //////////////////////////////////////////////////////////////////////
 
-  const char * data =
-    "arst"
-    "qwfp"
-    "1234"
-    "6789";
-  int input_width = 4;
-  int input_height = 4;
-
-  uint texture_input = make_texture(data,
-                                    GL_R8, // internalformat
-                                    input_width,
-                                    input_height,
-                                    GL_RED,
-                                    GL_UNSIGNED_BYTE);
+  int input_width;
+  int input_length = puzzle_2025_01_input_size;
+  uint texture_input = rectangularize_input(puzzle_2025_01_input_start,
+                                            puzzle_2025_01_input_size,
+                                            &input_width);
+  int input_height = input_width;
 
   uint texture_framebuffer = make_texture(NULL,
                                           GL_RGBA32F,
@@ -94,6 +118,14 @@ int main()
                                      src_shader_test_fs_glsl_size);
   uint program_test__tex_sampler = glGetUniformLocation(program_test, "tex_sampler");
   uint program_test__tex_size = glGetUniformLocation(program_test, "tex_size");
+
+  uint program_day1 = compile_shader(src_shader_day1_vs_glsl_start,
+                                     src_shader_day1_vs_glsl_size,
+                                     src_shader_day1_fs_glsl_start,
+                                     src_shader_day1_fs_glsl_size);
+  uint program_day1__tex_sampler = glGetUniformLocation(program_day1, "tex_sampler");
+  uint program_day1__tex_size = glGetUniformLocation(program_day1, "tex_size");
+  uint program_day1__input_length = glGetUniformLocation(program_day1, "input_length");
 
   //////////////////////////////////////////////////////////////////////
   // buffers
@@ -118,6 +150,10 @@ int main()
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+  int max_texture_size;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
+  printf("max_texture_size %d\n", max_texture_size);
+
   while(!glfwWindowShouldClose(window)) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
@@ -134,12 +170,21 @@ int main()
     glBindTexture(GL_TEXTURE_2D, texture_input);
     uint draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, draw_buffers);
+    /*
     glUseProgram(program_test);
     glUniform1i(program_test__tex_sampler, 0);
     glUniform4f(program_test__tex_size,
                 input_width, input_height,
                 0.5f / input_width,
                 0.5f / input_height);
+    */
+    glUseProgram(program_day1);
+    glUniform1i(program_day1__tex_sampler, 0);
+    glUniform4f(program_day1__tex_size,
+                input_width, input_height,
+                0.5f / input_width,
+                0.5f / input_height);
+    glUniform1f(program_day1__input_length, input_length);
     glBindVertexArray(vertex_array);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -160,14 +205,6 @@ int main()
       }
       printf("\n");
     }
-    int sum = 0;
-    for (int i = 0; i < buf_width * buf_height; i++) {
-      printf("%d ", data[i]);
-      if ((i % 4) == 3)
-        printf("\n");
-      sum += data[i];
-    }
-    printf("sum: %d\n", sum);
     break;
 
     /*

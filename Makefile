@@ -16,7 +16,7 @@ CFLAGS += -Wno-error=unused-const-variable
 CFLAGS += -Wno-error=unused-but-set-variable
 CFLAGS += -Wno-error=unused-variable
 CFLAGS += -I$(MAKEFILE_PATH)/include
-CFLAGS += -I$(MAKEFILE_PATH)/puzzle
+CFLAGS += -I$(MAKEFILE_PATH)
 CXXFLAGS += -fno-exceptions
 #CFLAGS += -DDEBUG_BUTTONS
 #CFLAGS += -DDEBUG_AXES
@@ -132,6 +132,7 @@ MAIN_OBJS = \
 	src/glad.o \
 	src/opengl.o \
 	$(patsubst %.glsl,%.glsl.o,$(wildcard src/shader/*.glsl)) \
+	$(patsubst %,%.o,$(shell find puzzle/ -type f -name input)) \
 	$(GLFW)
 
 main: $(MAIN_OBJS)
