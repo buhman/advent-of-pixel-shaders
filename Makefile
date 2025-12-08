@@ -18,8 +18,6 @@ CFLAGS += -Wno-error=unused-variable
 CFLAGS += -I$(MAKEFILE_PATH)/include
 CFLAGS += -I$(MAKEFILE_PATH)
 CXXFLAGS += -fno-exceptions
-#CFLAGS += -DDEBUG_BUTTONS
-#CFLAGS += -DDEBUG_AXES
 LDFLAGS += -nostdlib++ -lm -static-libgcc
 ifeq ($(OS),Windows_NT)
 LDFLAGS += -Wl,--subsystem,windows -mwindows
@@ -136,8 +134,11 @@ shaders: $(SHADER_HEADERS)
 
 INPUTS = $(shell find puzzle/ -type f -name input)
 INPUT_OBJS = $(patsubst %,%.o,$(INPUTS))
+INPUT_HEADERS = $(patsubst %,%.h,$(INPUTS))
 
-SOLUTIONS = $(shell find src/solution/2025/ -type f -name '*.c')
+inputs: $(INPUT_HEADERS)
+
+SOLUTIONS = $(shell find src/solution/ -type f -name '*.c')
 SOLUTION_OBJS = $(patsubst %.c,%.o,$(SOLUTIONS))
 
 MAIN_OBJS = \
@@ -150,7 +151,7 @@ MAIN_OBJS = \
 	$(SOLUTION_OBJS) \
 	$(GLFW)
 
-main: $(MAIN_OBJS) | shaders
+main: $(MAIN_OBJS) | shaders inputs
 	$(CXX) $^ $(CXXFLAGS) $(ARCH) -o $@ $(LDFLAGS)
 
 #-include $(shell find -type f -name 'src/*.d')

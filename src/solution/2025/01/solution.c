@@ -5,11 +5,11 @@
 #include "opengl.h"
 
 #include "puzzle/2025/01/input.h"
-#include "solution/2025/01/solution.vs.glsl.h"
+#include "solution/generic.vs.glsl.h"
 #include "solution/2025/01/solution.fs.glsl.h"
 
-const int output_width = 1;
-const int output_height = 1;
+static const int output_width = 1;
+static const int output_height = 1;
 
 void solution_2025_01(unsigned int vertex_array)
 {
@@ -38,8 +38,8 @@ void solution_2025_01(unsigned int vertex_array)
   // shaders
   //////////////////////////////////////////////////////////////////////
 
-  uint program = compile_shader(src_solution_2025_01_solution_vs_glsl_start,
-                                src_solution_2025_01_solution_vs_glsl_size,
+  uint program = compile_shader(src_solution_generic_vs_glsl_start,
+                                src_solution_generic_vs_glsl_size,
                                 src_solution_2025_01_solution_fs_glsl_start,
                                 src_solution_2025_01_solution_fs_glsl_size);
   uint program__input_sampler = glGetUniformLocation(program, "input_sampler");

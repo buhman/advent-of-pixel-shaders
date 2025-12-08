@@ -28,6 +28,7 @@ const float triangle_array[] = {
 };
 
 extern void solution_2025_01(unsigned int vertex_array);
+extern void solution_2025_03(unsigned int vertex_array);
 
 int main()
 {
@@ -86,7 +87,8 @@ int main()
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
 
-    solution_2025_01(vertex_array);
+    //solution_2025_01(vertex_array);
+    solution_2025_03(vertex_array);
 
     break;
 
