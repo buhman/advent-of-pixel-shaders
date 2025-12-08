@@ -93,11 +93,11 @@ int main()
   //////////////////////////////////////////////////////////////////////
 
   int input_width;
-  int input_length = puzzle_2025_01_input_size;
   uint texture_input = rectangularize_input(puzzle_2025_01_input_start,
                                             puzzle_2025_01_input_size,
                                             &input_width);
   int input_height = input_width;
+  int input_length = puzzle_2025_01_input_size;
 
   uint texture_framebuffer = make_texture(NULL,
                                           GL_RGBA32F,

@@ -42,27 +42,34 @@ vec2 parse_integer(float ix)
 vec2 parse_direction(float ix)
 {
   float c = get_input(ix);
-  float left = (c == ascii_l) ? 1.0 : 0.0;
-  return vec2(ix + 1.0, left);
+  float direction = (c == ascii_l) ? -1.0 : 1.0;
+  return vec2(ix + 1.0, direction);
 }
 
-vec2 simulate_movement(float ix, float position)
+vec3 simulate_movement(float ix, float position)
 {
   vec2 dir_result = parse_direction(ix);
   ix = dir_result.x;
-  float left = dir_result.y;
+  float direction = dir_result.y;
 
   vec2 int_result = parse_integer(ix);
   ix = int_result.x;
   float number = int_result.y;
 
-  if (left == 1.0) {
-    position = position - number;
-  } else {
-    position = position + number;
+  float old_position = position;
+  float crossings = floor(number / 100.0);
+  position += direction * mod(number, 100.0);
+  if (position < 0.0) {
+    position += 100.0;
+    crossings += float(old_position != 0.0);
   }
-  position = mod(position, 100);
-  return vec2(ix, position);
+  if (position > 99.0) {
+    position -= 100.0;
+    crossings += float(position != 0.0);
+  }
+  crossings += float(position == 0.0);
+
+  return vec3(ix, position, crossings);
 }
 
 void main()
@@ -70,16 +77,18 @@ void main()
   float ix = 0.0;
   float position = 50.0;
   float zeros = 0.0;
+  float zero_crossings = 0.0;
 
   while (ix < input_length) {
-    vec2 result = simulate_movement(ix, position);
+    vec3 result = simulate_movement(ix, position);
     ix = result.x;
     position = result.y;
+    zero_crossings += result.z;
 
     if (position == 0.0) {
       zeros += 1.0;
     }
   }
 
-  fragment_color = vec4(position, zeros, 0, 0);
+  fragment_color = vec4(zeros, zero_crossings, 0, 0);
 }
