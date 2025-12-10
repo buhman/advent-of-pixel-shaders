@@ -24,6 +24,10 @@ uint make_texture(const void * data,
 
 uint make_framebuffer(uint * texture, int length);
 
+void debug_framebuffer(int width, int height,
+                       int elements,
+                       const char * format);
+
 #ifdef __cplusplus
 }
 #endif

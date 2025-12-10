@@ -85,10 +85,13 @@ uint make_texture(const void * data,
   glGenTextures(1, &texture);
 
   glBindTexture(GL_TEXTURE_2D, texture);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  float color[3] = {0.0, 0.0, 0.0};
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
 
   glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, data);
 
@@ -107,8 +110,33 @@ uint make_framebuffer(uint * texture, int length)
   }
 
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  //printf("glCheckFramebufferStatus: %x\n", status);
   assert(status == GL_FRAMEBUFFER_COMPLETE);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   return framebuffer;
+}
+
+void debug_framebuffer(int width, int height,
+                       int elements,
+                       const char * format)
+{
+  assert(elements == 1 || elements == 3);
+  uint gl_format = (elements == 1) ? GL_RED : GL_RGB;
+
+  float out[elements * width * height] = {};
+  glReadPixels(0, 0,
+               width, height,
+               gl_format,
+               GL_FLOAT,
+               out);
+
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      for (int i = 0; i < elements; i++) {
+        printf(format, out[(y * width + x) * elements + i]);
+      }
+    }
+    printf("\n");
+  }
 }

@@ -17,6 +17,7 @@ CFLAGS += -Wno-error=unused-but-set-variable
 CFLAGS += -Wno-error=unused-variable
 CFLAGS += -I$(MAKEFILE_PATH)/include
 CFLAGS += -I$(MAKEFILE_PATH)
+CFLAGS += -I$(dir $(GLFW))../include
 CXXFLAGS += -fno-exceptions
 LDFLAGS += -nostdlib++ -lm -static-libgcc
 ifeq ($(OS),Windows_NT)

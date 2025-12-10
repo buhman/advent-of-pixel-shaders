@@ -29,6 +29,7 @@ const float triangle_array[] = {
 
 extern void solution_2025_01(unsigned int vertex_array);
 extern void solution_2025_03(unsigned int vertex_array);
+extern void solution_2025_04(unsigned int vertex_array);
 
 int main()
 {
@@ -55,6 +56,13 @@ int main()
   }
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+  int n;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+  for (int i=0; i<n; i++)  {
+    const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+    //printf("Ext %d: %s\n", i, extension);
+  }
 
   //////////////////////////////////////////////////////////////////////
   // buffers
@@ -88,7 +96,8 @@ int main()
       glfwSetWindowShouldClose(window, true);
 
     //solution_2025_01(vertex_array);
-    solution_2025_03(vertex_array);
+    //solution_2025_03(vertex_array);
+    solution_2025_04(vertex_array);
 
     break;
 
