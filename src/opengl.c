@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "glad.h"
+#include "glad/glad.h"
 #include "opengl.h"
 
 uint compile_shader(const void * vp,

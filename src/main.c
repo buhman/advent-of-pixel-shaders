@@ -3,7 +3,7 @@
 #include <math.h>
 #include <assert.h>
 
-#include "glad.h"
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
 #include "opengl.h"
@@ -96,8 +96,8 @@ int main()
       glfwSetWindowShouldClose(window, true);
 
     //solution_2025_01(vertex_array);
-    //solution_2025_03(vertex_array);
-    solution_2025_04(vertex_array);
+    solution_2025_03(vertex_array);
+    //solution_2025_04(vertex_array);
 
     break;
 

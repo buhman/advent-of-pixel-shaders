@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "glad.h"
+#include "glad/glad.h"
 #include "input.h"
 #include "opengl.h"
 

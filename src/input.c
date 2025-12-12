@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "glad.h"
+#include "glad/glad.h"
 #include "opengl.h"
 
 static inline int next_power_of_two(double n)
