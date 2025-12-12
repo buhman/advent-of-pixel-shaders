@@ -43,6 +43,8 @@ uint compile_shader(const void * vp,
 
   glAttachShader(shader_program, vertex_shader);
   glAttachShader(shader_program, fragment_shader);
+
+  glBindAttribLocation(shader_program, 0, "position");
   glLinkProgram(shader_program);
 
   {

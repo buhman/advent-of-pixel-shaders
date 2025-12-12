@@ -1,4 +1,4 @@
-#version 330 core
+#version 130
 
 uniform sampler2D input_sampler;
 uniform vec4 input_dim; // w h halfpx_w halfpx_h

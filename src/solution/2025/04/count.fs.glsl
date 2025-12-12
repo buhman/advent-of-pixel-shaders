@@ -1,4 +1,4 @@
-#version 330 core
+#version 130
 
 uniform sampler2D input_sampler_a;
 uniform sampler2D input_sampler_b;
